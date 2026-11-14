@@ -8,33 +8,41 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=domoticz
-PKG_VERSION:=2021.1
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=2026.4
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/domoticz/domoticz/archive/$(PKG_VERSION)/$(PKG_SOURCE)
-PKG_HASH:=c4dc3455edae8bf00d2e950002f70d5b90ac577b1559ef7ada6870d970069fbb
+# The codeload tarball lacks the extern/ submodules (libwebem); use the
+# source asset from the release, which bundles them.
+PKG_SOURCE:=domoticz_src_2026.18387.tar.gz
+PKG_SOURCE_URL:=https://github.com/domoticz/domoticz/releases/download/$(PKG_VERSION)
+PKG_HASH:=88964b791050abf6b6df3ec9e1d262d18e198a6fa108638974eca8600d1a4568
 
 PKG_MAINTAINER:=David Woodhouse <dwmw2@infradead.org>
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=License.txt
+PKG_CPE_ID:=cpe:/a:domoticz:domoticz
 
-PKG_BUILD_DEPENDS:=python3 minizip cereal
-PKG_USE_MIPS16:=0
+PKG_BUILD_DEPENDS:=python3 minizip cereal boost jwt-cpp
+PKG_BUILD_FLAGS:=no-mips16
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
+
+# The tarball extracts to a bare domoticz/ directory; strip that so the
+# build happens in the usual versioned directory.
+TAR_OPTIONS:=--strip-components 1 $(TAR_OPTIONS)
+TAR_CMD=$(HOST_TAR) -C $(1) $(TAR_OPTIONS)
 
 define Package/domoticz
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Open Source Home Automation System
-  URL:=http://domoticz.com/
+  URL:=https://domoticz.com/
   USERID:=domoticz=6144:domoticz=6144
   DEPENDS:= \
+	+libatomic \
 	+boost \
 	+boost-date_time \
-	+boost-system \
 	+boost-thread \
 	+jsoncpp \
 	+libcurl \
@@ -47,7 +55,6 @@ define Package/domoticz
 	+libopenzwave \
 	+libsqlite3 \
 	+libstdcpp \
-	+telldus-core \
 	+zlib
 endef
 
@@ -55,9 +62,11 @@ define Package/domoticz/description
   Domoticz is a Home Automation System that lets you monitor and configure various devices like: Lights, Switches, various sensors/meters like Temperature, Rain, Wind, UV, Electra, Gas, Water and much more. Notifications/Alerts can be sent to any mobile device.
 endef
 
+TARGET_LDFLAGS += -latomic
+
 CMAKE_OPTIONS += \
-	-DBUILD_SHARED_LIBS=yes \
 	-DBoost_NO_BOOST_CMAKE=yes \
+	-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
 	-DGIT_SUBMODULE=no \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DUSE_BUILTIN_MQTT=no \
@@ -65,17 +74,17 @@ CMAKE_OPTIONS += \
 	-DUSE_BUILTIN_JSONCPP=no \
 	-DUSE_BUILTIN_MINIZIP=no \
 	-DUSE_BUILTIN_LIBFMT=no \
+	-DUSE_BUILTIN_JWTCPP=no \
 	-DUSE_LUA_STATIC=no \
 	-DUSE_STATIC_BOOST=no \
 	-DUSE_STATIC_LIBSTDCXX=no \
 	-DUSE_STATIC_OPENZWAVE=no \
 	-DUSE_OPENSSL_STATIC=no \
 	-DUSE_PYTHON=yes \
-	-DWITH_LIBUSB=no
+	-DWITH_LIBUSB=no \
+	-DWITH_TELLDUSCORE=no
 
-TARGET_CFLAGS += -flto
-TARGET_CXXFLAGS += -DWITH_GPIO -flto
-TARGET_LDFLAGS += -lpython3.9
+TARGET_CXXFLAGS += -DWITH_GPIO
 
 define Build/Prepare
 	$(call Build/Prepare/Default)

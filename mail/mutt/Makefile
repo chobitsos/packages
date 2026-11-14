@@ -8,13 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mutt
-PKG_VERSION:=2.1.3
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=2.4.3
+PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://bitbucket.org/mutt/mutt/downloads/ \
-		http://ftp.mutt.org/pub/mutt/
+PKG_SOURCE_URL:=http://ftp.mutt.org/pub/mutt/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=ef759cc94b921b099a3ee88085d384fd3564c97f511e907bc83cf9812dd5e47c
+PKG_HASH:=ce9154e3afede622d98b90a22c87d06f32051c930a9afb2b7ef41656c4dbc948
 
 PKG_MAINTAINER:=Phil Eichinger <phil@zankapfel.net>
 PKG_LICENSE:=GPL-2.0-or-later
@@ -24,15 +23,24 @@ PKG_CPE_ID:=cpe:/a:mutt:mutt
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_MUTT_POP \
+	CONFIG_MUTT_IMAP \
+	CONFIG_MUTT_SMTP \
+	CONFIG_MUTT_HCACHE \
+	CONFIG_MUTT_SASL \
+	CONFIG_MUTT_GNUTLS \
+	CONFIG_MUTT_OPENSSL
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/mutt
   SECTION:=mail
   CATEGORY:=Mail
-  DEPENDS:=+MUTT_GNUTLS:libgnutls +MUTT_OPENSSL:libopenssl +libncursesw +MUTT_SASL:libsasl2 +terminfo +zlib
+  DEPENDS:=+MUTT_HCACHE:libgdbm +MUTT_GNUTLS:libgnutls +MUTT_OPENSSL:libopenssl +libncursesw +MUTT_SASL:libsasl2 +terminfo +zlib
   TITLE:=Console mail client
   URL:=http://www.mutt.org/
+  MENU:=1
 endef
 
 define Package/mutt/description
@@ -46,6 +54,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_MUTT_POP),--enable-pop) \
 	$(if $(CONFIG_MUTT_IMAP),--enable-imap) \
 	$(if $(CONFIG_MUTT_SMTP),--enable-smtp) \
+	$(if $(CONFIG_MUTT_HCACHE),--enable-hcache) \
 	$(if $(CONFIG_MUTT_SASL),--with-sasl) \
 	--with-mailpath=/var/mail \
 	$(if $(CONFIG_MUTT_GNUTLS),--with-gnutls) \
@@ -59,38 +68,7 @@ define Package/mutt/install
 endef
 
 define Package/mutt/config
-	menu "Select mutt build options"
-		config MUTT_POP
-			bool "POP support"
-			default y
-			help
-			  Enables POP support in mutt.
-		config MUTT_IMAP
-			bool "IMAP support"
-			default y
-			help
-			  Enables IMAP support in mutt
-		config MUTT_SMTP
-			bool "SMTP support"
-			default n
-			help
-			  Enables SMTP support in mutt.
-		config MUTT_SASL
-			bool "SASL support"
-			default n
-			help
-			  Enables SASL support in mutt (libsasl2).
-		config MUTT_GNUTLS
-			bool "GnuTLS support"
-			default n
-			help
-			  Enables GnuTLS support in mutt (libgnutls).
-		config MUTT_OPENSSL
-			bool "OpenSSL support"
-			default y
-			help
-			  Enables OpenSSL support in mutt (libopenssl).
-	endmenu
+  source "$(SOURCE)/Config.in"
 endef
 
 $(eval $(call BuildPackage,mutt))

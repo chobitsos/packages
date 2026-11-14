@@ -6,19 +6,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=minisatip
-PKG_VERSION:=1.0.4
+PKG_VERSION:=1.3.4
 PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/catalinii/minisatip/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=aa6ef68228a19faf04cf1283e994cae80134a01d9ee6bc45b9969d145b1281e5
+PKG_SOURCE_URL:=https://codeload.github.com/catalinii/minisatip/tar.gz/v$(PKG_VERSION)?
+PKG_HASH:=260d15a22ad7a70ed4205ce17054c8f3a3e03b11f0dd3186a887a057a19abd16
 
 PKG_MAINTAINER:=Daniel Kucera <github@danman.eu>
 PKG_LICENSE:=GPL-2.0-or-later
 
 PKG_BUILD_PARALLEL:=1
 PKG_CONFIG_DEPENDS:= \
-	CONFIG_BUILD_PATENTED \
 	CONFIG_MINISATIP_AES \
 	CONFIG_MINISATIP_CLIENT
 
@@ -29,7 +28,7 @@ define Package/minisatip
   URL:=https://github.com/catalinii/minisatip
   SECTION:=multimedia
   CATEGORY:=Multimedia
-  DEPENDS:=+MINISATIP_AES:libopenssl +BUILD_PATENTED:libdvbcsa
+  DEPENDS:=+MINISATIP_AES:libopenssl +libdvbcsa
 endef
 
 define Package/minisatip/config
@@ -47,8 +46,8 @@ define Package/minisatip/config
 endef
 
 CONFIGURE_ARGS += \
-	--$(if $(CONFIG_BUILD_PATENTED),en,dis)able-dvbcsa \
-	--$(if $(CONFIG_MINISATIP_AES),en,dis)able-dvbaes \
+	--enable-dvbcsa \
+	--$(if $(CONFIG_MINISATIP_AES),en,dis)able-dvbca \
 	--$(if $(CONFIG_MINISATIP_CLIENT),en,dis)able-satipc
 
 define Package/minisatip/install

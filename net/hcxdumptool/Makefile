@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hcxdumptool
-PKG_VERSION:=6.2.4
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=7.1.2
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/zerbea/hcxdumptool/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=cadeb4b2f00da3a1df65cb53080e134f201ef73825d35049110764faf699028d
+PKG_HASH:=4d733201bad47be494ce712227c915c668a63b98eebd151d33108a44d08c2efb
 
 PKG_MAINTAINER:=Andreas Nilsen <adde88@gmail.com>
 PKG_LICENSE:=MIT
@@ -24,7 +24,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/hcxdumptool
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libpcap +libopenssl
+  DEPENDS:=+libpcap
   TITLE:=hcxdumptool
   URL:=https://github.com/ZerBea/hcxdumptool
   SUBMENU:=Wireless
@@ -41,7 +41,9 @@ endef
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/ \
 		$(TARGET_CONFIGURE_OPTS) \
-		CFLAGS="$(TARGET_CFLAGS)"
+		CFLAGS="$(TARGET_CFLAGS) -std=gnu99" \
+		LDFLAGS="$(TARGET_LDFLAGS) -lpcap" \
+		hcxdumptool
 endef
 
 define Package/hcxdumptool/install

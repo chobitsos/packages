@@ -28,39 +28,6 @@ mainly a wrapper around `ovs-ctl` and `ovn-ctl` with simple knobs from
 
 Use `ovs-ctl` and `ovn-ctl` directly for more functionalities
 
-# Open vSwitch in-tree Linux datapath modules
-
-The Open vSwitch build system uses regexp and conditional-compilation
-heuristics to support building the shipped kernel module source code against a
-wide range of kernels, as of openvswitch-2.10, the list is supposed to include
-vanilla linux 3.10 to 4.15, plus a few distro kernels.
-
-It may NOT work
-
- - Sometimes the code does not compile
- - Sometimes the code compiles but insmod will fail
- - Sometimes modules are loaded okay but actually does not function right
-
-For these reasons, the in-tree datapath modules are NOT visible/enabled by
-default.
-
-Building and using in-tree datapath modules requires some level of devel
-abilities to proceed.  You are expected to configure build options and build
-the code on your own
-
-E.g. pair openvswitch userspace with in-tree datapath module
-
-	CONFIG_DEVEL=y
-	CONFIG_PACKAGE_openvswitch=y
-	# CONFIG_PACKAGE_kmod-openvswitch is not set
-	CONFIG_PACKAGE_kmod-openvswitch-intree=y
-
-E.g. replace in-tree datapath module with upstream version
-
-	opkg remove --force-depends kmod-openvswitch-intree
-	opkg install kmod-openvswitch
-	ovs-ctl force-reload-kmod
-
 # UCI configuration options
 
 There are 5 config section types in package openvswitch:
@@ -85,14 +52,16 @@ after adding or changing these options.
 The ovs_bridge section also supports the options below,
 for initialising a virtual bridge with an OpenFlow controller.
 
-| Name          | Type    | Required | Default                        | Description                                                |
-|---------------|---------|----------|--------------------------------|------------------------------------------------------------|
-| disabled      | boolean | no       | 0                              | If set to true, disable initialisation of the named bridge |
-| name          | string  | no       | Inherits UCI config block name | The name of the switch in the OVS daemon                   |
-| controller    | string  | no       | (none)                         | The endpoint of an OpenFlow controller for this bridge     |
-| datapath_id   | string  | no       | (none)                         | The OpenFlow datapath ID for this bridge                   |
-| datapath_desc | string  | no       | (none)                         | The OpenFlow datapath description for this bridge          |
-| fail_mode     | string  | no       | standalone                     | The bridge failure mode                                    |
+| Name               | Type    | Required | Default                        | Description                                                |
+|--------------------|---------|----------|--------------------------------|------------------------------------------------------------|
+| disabled           | boolean | no       | 0                              | If set to true, disable initialisation of the named bridge |
+| name               | string  | no       | Inherits UCI config block name | The name of the switch in the OVS daemon                   |
+| controller         | string  | no       | (none)                         | The endpoint of an OpenFlow controller for this bridge     |
+| datapath_id        | string  | no       | (none)                         | The OpenFlow datapath ID for this bridge                   |
+| datapath_desc      | string  | no       | (none)                         | The OpenFlow datapath description for this bridge          |
+| drop_unknown_ports | boolean | no       | 0                              | Remove ports not defined in UCI from the bridge            |
+| fail_mode          | string  | no       | standalone                     | The bridge failure mode                                    |
+| ports              | list    | no       | (none)                         | List of ports to add to the bridge                         |
 
 The ovs_port section can be used to add ports to a bridge. It supports the options below.
 

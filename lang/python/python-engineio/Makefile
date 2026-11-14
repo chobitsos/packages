@@ -8,15 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=python-engineio
-PKG_VERSION:=4.1.0
+PKG_VERSION:=4.14.0
 PKG_RELEASE:=1
 
 PYPI_NAME:=python-engineio
-PKG_HASH:=21e1bcc62f5573a4bb1c805e69915c5a4c5aa953005dde6c2f707c24554c1020
+PYPI_SOURCE_NAME:=python_engineio
+PKG_HASH:=eaa1e386baf9c2c7959eef7f9d9165c5ea910c5b392f5316e78d29ed073cb43d
 
-PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec1@gmail.com>
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:python-engineio_project:python-engineio
+
+PKG_BUILD_DEPENDS:=python-setuptools/host
 
 include ../pypi.mk
 include $(INCLUDE_DIR)/package.mk
@@ -26,14 +30,15 @@ define Package/python3-engineio
   SUBMENU:=Python
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=Engine.IO server
+  TITLE:=Engine.IO server and client
   URL:=https://github.com/miguelgrinberg/python-engineio
   DEPENDS:= \
 	+python3-light \
 	+python3-asyncio \
 	+python3-logging \
 	+python3-openssl \
-	+python3-urllib
+	+python3-urllib \
+	+python3-simple-websocket
 endef
 
 define Package/python3-engineio/description

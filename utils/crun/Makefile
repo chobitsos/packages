@@ -1,14 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=crun
-PKG_VERSION:=0.20
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=1.28
+PKG_RELEASE:=1
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/containers/crun.git
-PKG_SOURCE_DATE:=2021-06-07
-PKG_SOURCE_VERSION:=8d6a8b5ab80461cfed19f020a36584af13c32038
-PKG_MIRROR_HASH:=9ca1f0e530b33ce8820bd03329eb6731c5050d6e7f35bd2463d9a81cc00382e0
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/containers/crun/tar.gz/$(PKG_VERSION)?
+PKG_HASH:=90284c7f097f8ee72a6447978c263e1b1355727c2f2ca0ac667e6d57788f46f5
 
 PKG_BUILD_DEPENDS:=argp-standalone
 PKG_BUILD_PARALLEL:=1
@@ -18,6 +16,7 @@ PKG_INSTALL:=1
 PKG_MAINTAINER:=Oskari Rauta <oskari.rauta@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:crun_project:crun
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -26,16 +25,27 @@ define Package/crun
   CATEGORY:=Utilities
   TITLE:=crun
   URL:=https://github.com/containers/crun
-  DEPENDS:=@!arc +libseccomp +libcap
+  DEPENDS:=@!arc +libseccomp +libcap +libgcrypt +libjson-c
 endef
 
 define Package/crun/description
   A fast and low-memory footprint OCI Container Runtime fully written in C.
 endef
 
+LIBOCISPEC_COMMIT:=8034d0ecd27f646ba3ffae5ff24db234ce062825
+
+define Download/libocispec
+  PROTO:=git
+  URL:=https://github.com/containers/libocispec.git
+  SOURCE_VERSION:=$(LIBOCISPEC_COMMIT)
+  MIRROR_HASH:=ac132910952d2d5c6bf3c8b891cced10d1c6113d50c78779a6b8d21851dc908a
+  FILE:=libocispec-$(LIBOCISPEC_COMMIT).tar.xz
+  SUBDIR:=libocispec
+endef
+$(eval $(call Download,libocispec))
+
 CONFIGURE_ARGS+= \
 	--disable-systemd \
-	--enable-embedded-yajl \
 	--enable-caps \
 	--enable-dl \
 	--enable-seccomp \
@@ -43,7 +53,8 @@ CONFIGURE_ARGS+= \
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	$(SED) '/#include <git-version.h>/d' $(PKG_BUILD_DIR)/src/crun.c
+	$(SED) '/#include <git-version.h>/d' $(PKG_BUILD_DIR)/src/{crun.c,libcrun/container.c}
+	xzcat $(DL_DIR)/libocispec-$(LIBOCISPEC_COMMIT).tar.xz | $(HOST_TAR) -C $(PKG_BUILD_DIR) $(TAR_OPTIONS)
 endef
 
 define Build/Configure

@@ -1,18 +1,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=conmon
-PKG_VERSION:=2.0.29
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=2.2.1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/containers/$(PKG_NAME)/archive/v$(PKG_VERSION)
-PKG_HASH:=eb4d5e157671a61b88786e44094775194e30e1d0ad0b9d50035532ece78dbc28
+PKG_SOURCE_URL:=https://github.com/containers/conmon/archive/v$(PKG_VERSION)
+PKG_HASH:=814fb5979a3a4b8576b1f901e606b482bebb41cb7e57926e6d5765ee786b96d3
 
 PKG_MAINTAINER:=Oskari Rauta <oskari.rauta@gmail.com>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_DEPENDS:=golang/host
+PKG_BUILD_DEPENDS:=libseccomp
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
@@ -23,7 +23,7 @@ define Package/conmon
   CATEGORY:=Utilities
   TITLE:=Podman conmon
   URL:=https://podman.io
-  DEPENDS:=+glib2 $(INTL_DEPENDS) $(ICONV_DEPENDS)
+  DEPENDS:=@!arc +glib2 $(INTL_DEPENDS) $(ICONV_DEPENDS)
 endef
 
 define Package/conmon/description
@@ -36,7 +36,7 @@ endef
 
 define Package/conmon/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/libexec/podman/conmon $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/conmon $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,conmon))

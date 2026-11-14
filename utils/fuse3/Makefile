@@ -9,18 +9,18 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=fuse3
-PKG_VERSION:=3.10.5
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_VERSION:=3.18.3
+PKG_RELEASE:=1
 
-PKG_SOURCE:=fuse-$(PKG_VERSION).tar.xz
+PKG_SOURCE:=fuse-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/libfuse/libfuse/releases/download/fuse-$(PKG_VERSION)
-PKG_HASH:=b2e283485d47404ac896dd0bb7f7ba81e1470838e677e45f659804c3a3b69666
+PKG_HASH:=bcd19582c5e30f7fe45dd86a5540e998590aa01903afc7ebcbeea6c8ac5421ee
 PKG_BUILD_DIR:=$(BUILD_DIR)/fuse-$(PKG_VERSION)
 
-PKG_MAINTAINER:=
+PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
 PKG_CPE_ID:=cpe:/a:fuse_project:fuse
 
-PKG_INSTALL:=1
+PKG_CONFIG_DEPENDS:=CONFIG_PACKAGE_fuse3-utils
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/meson.mk
@@ -61,7 +61,7 @@ $(call Package/fuse3/Default)
   TITLE+= (utilities)
   SUBMENU:=Filesystem
   LICENSE:=GPL-2.0-only
-  LICENSE_FILES:=COPYING
+  LICENSE_FILES:=GPL2.txt
 endef
 
 define Package/fuse3-utils/description
